@@ -27,7 +27,7 @@ export const PublicRoute = () => {
 		checkAuth();
 	}, []);
 
-	if (isAuthenticated === null) {
+	if (isAuthenticated === true) {
 		return <Loading />;
 	}
 

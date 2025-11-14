@@ -1,85 +1,77 @@
+import { useState, useEffect } from 'react';
+
 export const HomePage = () => {
-  // TODO: Integrar lógica para obtener superhéroes desde la API
-  // TODO: Implementar useState para almacenar la lista de superhéroes
-  // TODO: Implementar función para recargar superhéroes
+	const [superheroes, setSuperheroes] = useState([]);
+	const [isLoading, setIsLoading] = useState(true);
 
-  // Datos de ejemplo para las cards
-  const superheroes = [
-    {
-      id: 1,
-      superhero: "Superman",
-      image:
-        "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/644-superman.jpg",
-    },
-    {
-      id: 2,
-      superhero: "Batman",
-      image:
-        "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/70-batman.jpg",
-    },
-    {
-      id: 3,
-      superhero: "Wonder Woman",
-      image:
-        "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/720-wonder-woman.jpg",
-    },
-    {
-      id: 4,
-      superhero: "Spider-Man",
-      image:
-        "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/620-spider-man.jpg",
-    },
-    {
-      id: 5,
-      superhero: "Iron Man",
-      image:
-        "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/346-iron-man.jpg",
-    },
-    {
-      id: 6,
-      superhero: "Captain America",
-      image:
-        "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/149-captain-america.jpg",
-    },
-  ];
+	const fetchSuperheroes = async () => {
+		setIsLoading(true);
+		try {
+			const response = await fetch(
+				'https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/all.json',
+			);
+			if (!response.ok) {
+				throw new Error('La respuesta de la API no fue exitosa');
+			}
+			const data = await response.json();
+			const formattedData = data.map((hero) => ({
+				id: hero.id,
+				superhero: hero.name,
+				image: hero.images.lg,
+			}));
 
-  return (
-    <div className="container mx-auto px-4 pb-8">
-      <h1 className="text-4xl font-bold text-center mt-8 mb-4 text-gray-800">
-        Galería de Superhéroes
-      </h1>
+			const randomHeroes = formattedData.sort(() => 0.5 - Math.random()).slice(0, 6);
 
-      <div className="flex justify-center mb-8">
-        <button
-          onClick={() => {
-            // TODO: Implementar función para recargar superhéroes
-          }}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded transition-colors"
-        >
-          Recargar
-        </button>
-      </div>
+			setSuperheroes(randomHeroes);
+		} catch (error) {
+			console.error('Error al obtener los superhéroes:', error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {superheroes.map((hero) => (
-          <div
-            key={hero.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer"
-          >
-            <img
-              src={hero.image}
-              alt={hero.superhero}
-              className="h-64 object-cover w-full"
-            />
+	useEffect(() => {
+		fetchSuperheroes();
+	}, []);
 
-            <div className="p-4">
-              <h3 className="text-xl font-semibold text-gray-800">
-                {hero.superhero}
-              </h3>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+	return (
+		<div className="container mx-auto px-4 pb-8">
+			<h1 className="text-4xl font-bold text-center mt-8 mb-4 text-gray-800">
+				Galería de Superhéroes
+			</h1>
+
+			<div className="flex justify-center mb-8">
+				<button
+					onClick={fetchSuperheroes}
+					className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded transition-colors"
+					disabled={isLoading}
+				>
+					{isLoading ? 'Cargando...' : 'Recargar'}
+				</button>
+			</div>
+
+			{isLoading && superheroes.length === 0 ? (
+				<p className="text-center text-xl text-gray-600">Cargando héroes...</p>
+			) : (
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+					{superheroes.map((hero) => (
+						<div
+							key={hero.id}
+							className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer"
+						>
+							<img
+								src={hero.image}
+								alt={hero.superhero}
+								className="h-64 object-cover w-full"
+							/>
+
+							<div className="p-4">
+								<h3 className="text-xl font-semibold text-gray-800">{hero.superhero}</h3>
+							</div>
+						</div>
+					))}
+				</div>
+			)}
+		</div>
+	);
 };

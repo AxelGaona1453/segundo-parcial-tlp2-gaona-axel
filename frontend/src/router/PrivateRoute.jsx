@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router';
-import { Footer } from '../components/Footer';
 import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
 
 export const PrivateRoute = () => {
 	const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -28,7 +28,7 @@ export const PrivateRoute = () => {
 		checkAuth();
 	}, []);
 
-	if (isAuthenticated === null) {
+	if (isAuthenticated === false) {
 		return <Loading />;
 	}
 
