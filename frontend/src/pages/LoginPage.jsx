@@ -1,57 +1,54 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useForm } from '../hooks/useForm';
+import { useState } from 'react';
 
 export const LoginPage = () => {
+	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
-	const [error, setError] = useState(null);
-	const [isLoading, setIsLoading] = useState(false);
-
-	const { formState, handleChange, username, password } = useForm({
+	const { formState, handleChange, handleReset } = useForm({
 		username: '',
 		password: '',
 	});
 
-	const handleSubmit = async (event) => {
-		event.preventDefault();
-		setIsLoading(true);
-		setError(null);
-
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		setLoading(true);
 		try {
-			const response = await fetch('http://localhost:3000/api/login', {
+			const res = await fetch('http://localhost:3000/api/login', {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json',
+					'Content-type': 'application/json',
 				},
 				body: JSON.stringify(formState),
 				credentials: 'include',
 			});
 
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.message || 'Credenciales incorrectas.');
+			if (res.ok) {
+				('Login exitoso');
+				navigate('/home');
+			} else {
+				('Credenciales incorrectas');
+				handleReset();
 			}
-
-			navigate('/home', { replace: true });
-		} catch (err) {
-			setError(err.message);
+		} catch (e) {
+			console.error('Error: ', e.message);
 		} finally {
-			setIsLoading(false);
+			setLoading(true);
 		}
 	};
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8">
 			<div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
+				{/* Título */}
 				<h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
 					Iniciar Sesión
 				</h2>
 
-				{error && (
-					<div className="bg-red-100 text-red-700 p-3 rounded mb-4">
-						<p className="text-sm">{error}</p>
-					</div>
-				)}
+				{/* TODO: Mostrar este div cuando haya error */}
+				<div className="hidden bg-red-100 text-red-700 p-3 rounded mb-4">
+					<p className="text-sm">Credenciales incorrectas. Intenta nuevamente.</p>
+				</div>
 
 				<form onSubmit={handleSubmit}>
 					<div className="mb-4">
@@ -62,10 +59,10 @@ export const LoginPage = () => {
 							type="text"
 							id="username"
 							name="username"
-							value={username}
 							onChange={handleChange}
 							placeholder="Ingresa tu usuario"
 							className="w-full border border-gray-300 rounded p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+							disabled={loading}
 							required
 						/>
 					</div>
@@ -78,25 +75,25 @@ export const LoginPage = () => {
 							type="password"
 							id="password"
 							name="password"
-							value={password}
 							onChange={handleChange}
 							placeholder="Ingresa tu contraseña"
 							className="w-full border border-gray-300 rounded p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+							disabled={loading}
 							required
 						/>
 					</div>
 
 					<button
 						type="submit"
-						className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded transition-colors disabled:bg-gray-400"
-						disabled={isLoading}
+						className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded transition-colors"
+						disabled={loading}
 					>
-						{isLoading ? 'Ingresando...' : 'Ingresar'}
+						{loading ? 'Iniciando sesion...' : 'Ingresar'}
 					</button>
 				</form>
 
 				<p className="text-center text-sm text-gray-600 mt-4">
-					¿No tienes cuenta?{' '}
+					¿No tienes cuenta?
 					<Link to="/register" className="text-blue-600 hover:text-blue-800 font-medium">
 						Regístrate aquí
 					</Link>

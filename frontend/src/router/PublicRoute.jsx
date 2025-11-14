@@ -3,7 +3,7 @@ import { Navigate, Outlet } from 'react-router';
 import { Loading } from '../components/Loading';
 
 export const PublicRoute = () => {
-	const [isAuthenticated, setIsAuthenticated] = useState(null);
+	const [isAuthenticated, setIsAuthenticated] = useState(false);
 
 	const checkAuth = async () => {
 		try {
@@ -19,7 +19,7 @@ export const PublicRoute = () => {
 			}
 		} catch (error) {
 			console.error('Error verificando autenticación:', error);
-			setIsAuthenticated(null);
+			setIsAuthenticated(false);
 		}
 	};
 
@@ -27,7 +27,7 @@ export const PublicRoute = () => {
 		checkAuth();
 	}, []);
 
-	if (isAuthenticated === true) {
+	if (isAuthenticated === null) {
 		return <Loading />;
 	}
 

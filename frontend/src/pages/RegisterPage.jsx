@@ -1,13 +1,11 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useForm } from '../hooks/useForm';
+import { useState } from 'react';
 
 export const RegisterPage = () => {
+	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
-	const [error, setError] = useState(null);
-	const [isLoading, setIsLoading] = useState(false);
-
-	const { formState, handleChange, username, email, password, name, lastname } = useForm({
+	const { formState, handleChange, handleReset } = useForm({
 		username: '',
 		email: '',
 		password: '',
@@ -15,29 +13,30 @@ export const RegisterPage = () => {
 		lastname: '',
 	});
 
-	const handleSubmit = async (event) => {
-		event.preventDefault();
-		setIsLoading(true);
-		setError(null);
-
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		setLoading(true);
 		try {
-			const response = await fetch('http://localhost:3000/api/register', {
+			const res = await fetch('http://localhost:3000/api/register', {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json',
+					'Content-type': 'application/json',
 				},
 				body: JSON.stringify(formState),
+				credentials: 'include',
 			});
 
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.message || 'Error al crear la cuenta.');
+			if (res.ok) {
+				alert('¡Registro exitoso! puedes iniciar sesion con tu cuentra creada');
+				navigate('/login');
+			} else {
+				alert('Credenciales incorrectas');
+				handleReset();
 			}
-			navigate('/login');
-		} catch (err) {
-			setError(err.message);
+		} catch (e) {
+			console.error('Error: ', e.message);
 		} finally {
-			setIsLoading(false);
+			setLoading(false);
 		}
 	};
 
@@ -48,11 +47,10 @@ export const RegisterPage = () => {
 					Crear Cuenta
 				</h2>
 
-				{error && (
-					<div className="bg-red-100 text-red-700 p-3 rounded mb-4">
-						<p className="text-sm">{error}</p>
-					</div>
-				)}
+				{/* TODO: Mostrar este div cuando haya error */}
+				<div className="hidden bg-red-100 text-red-700 p-3 rounded mb-4">
+					<p className="text-sm">Error al crear la cuenta. Intenta nuevamente.</p>
+				</div>
 
 				<form onSubmit={handleSubmit}>
 					<div className="mb-4">
@@ -63,10 +61,10 @@ export const RegisterPage = () => {
 							type="text"
 							id="username"
 							name="username"
-							value={username}
 							onChange={handleChange}
 							placeholder="Elige un nombre de usuario"
 							className="w-full border border-gray-300 rounded p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+							disabled={loading}
 							required
 						/>
 					</div>
@@ -79,10 +77,10 @@ export const RegisterPage = () => {
 							type="email"
 							id="email"
 							name="email"
-							value={email}
 							onChange={handleChange}
 							placeholder="tu@email.com"
 							className="w-full border border-gray-300 rounded p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+							disabled={loading}
 							required
 						/>
 					</div>
@@ -95,10 +93,10 @@ export const RegisterPage = () => {
 							type="password"
 							id="password"
 							name="password"
-							value={password}
 							onChange={handleChange}
 							placeholder="Crea una contraseña segura"
 							className="w-full border border-gray-300 rounded p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+							disabled={loading}
 							required
 						/>
 					</div>
@@ -111,10 +109,10 @@ export const RegisterPage = () => {
 							type="text"
 							id="name"
 							name="name"
-							value={name}
 							onChange={handleChange}
 							placeholder="Tu nombre"
 							className="w-full border border-gray-300 rounded p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+							disabled={loading}
 							required
 						/>
 					</div>
@@ -127,20 +125,20 @@ export const RegisterPage = () => {
 							type="text"
 							id="lastname"
 							name="lastname"
-							value={lastname}
 							onChange={handleChange}
 							placeholder="Tu apellido"
 							className="w-full border border-gray-300 rounded p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+							disabled={loading}
 							required
 						/>
 					</div>
 
 					<button
 						type="submit"
-						className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded transition-colors disabled:bg-gray-400"
-						disabled={isLoading}
+						className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded transition-colors"
+						disabled={loading}
 					>
-						{isLoading ? 'Registrando...' : 'Registrarse'}
+						{loading ? 'Registrandose...' : 'Registrarse'}
 					</button>
 				</form>
 
