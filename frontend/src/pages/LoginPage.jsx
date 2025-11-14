@@ -24,10 +24,10 @@ export const LoginPage = () => {
 			});
 
 			if (res.ok) {
-				('Login exitoso');
+				alert('Login exitoso');
 				navigate('/home');
 			} else {
-				('Credenciales incorrectas');
+				alert('Credenciales incorrectas');
 				handleReset();
 			}
 		} catch (e) {

@@ -1,49 +1,53 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
 export const Navbar = () => {
-	const [userName, setUserName] = useState('Usuario');
-
 	const navigate = useNavigate();
-	useEffect(() => {
-		const fetchProfile = async () => {
-			try {
-				const response = await fetch('http://localhost:3000/api/profile', {
-					method: 'GET',
-					credentials: 'include',
-				});
 
-				if (response.ok) {
-					const userData = await response.json();
-					setUserName(userData.name || userData.username || 'Usuario');
-				} else {
-					console.error('No se pudo obtener el perfil del usuario.');
-				}
-			} catch (error) {
-				console.error('Error de red al obtener perfil:', error);
-			}
-		};
+	const [user, setUser] = useState({
+		id: '050',
+		name: 'axel',
+		lastname: 'gaona',
+	});
 
-		fetchProfile();
-	}, []);
-
-	const handleLogout = async () => {
+	const getProfile = async () => {
 		try {
-			const response = await fetch('http://localhost:3000/api/logout', {
+			const res = await fetch('http://localhost:3000/api/profile', {
+				credentials: 'include',
+			});
+
+			if (res.ok) {
+				const data = await res.json();
+				setUser(data.user);
+			}
+		} catch (e) {
+			console.log('Error es:', e.message);
+		}
+	};
+
+	const handleLogout = async (e) => {
+		e.preventDefault();
+		try {
+			const res = await fetch('http://localhost:3000/api/logout', {
 				method: 'POST',
 				credentials: 'include',
 			});
-			if (response.ok) {
+
+			if (res.ok) {
+				alert('Cerraste sesion con exito, seras redirigido');
 				navigate('/login');
-			} else {
-				console.error('Error al cerrar sesión:', await response.text());
-				alert('No se pudo cerrar la sesión. Inténtalo de nuevo.');
 			}
-		} catch (error) {
-			console.error('Error de red al cerrar sesión:', error);
-			alert('Error de red. No se pudo cerrar la sesión.');
+		} catch (e) {
+			console.log('error', e.message);
 		}
 	};
+
+	useEffect(() => {
+		getProfile();
+	}, []);
+
+	const userName = user.name;
 
 	return (
 		<nav className="bg-gray-900 text-white h-16 left-0 right-0 shadow-lg sticky top-0 z-50">
