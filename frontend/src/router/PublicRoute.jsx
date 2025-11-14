@@ -1,39 +1,39 @@
-import { useEffect, useState } from "react";
-import { Navigate, Outlet } from "react-router";
-import Loading from "../components/Loading";
+import { useEffect, useState } from 'react';
+import { Navigate, Outlet } from 'react-router';
+import { Loading } from '../components/Loading';
 
 export const PublicRoute = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+	const [isAuthenticated, setIsAuthenticated] = useState(null);
 
-  const checkAuth = async () => {
-    try {
-      const response = await fetch("http://localhost:3000/api/profile", {
-        method: "GET",
-        credentials: "include",
-      });
+	const checkAuth = async () => {
+		try {
+			const response = await fetch('http://localhost:3000/api/profile', {
+				method: 'GET',
+				credentials: 'include',
+			});
 
-      if (response.ok) {
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
-      }
-    } catch (error) {
-      console.error("Error verificando autenticación:", error);
-      setIsAuthenticated(false);
-    }
-  };
+			if (response.ok) {
+				setIsAuthenticated(true);
+			} else {
+				setIsAuthenticated(false);
+			}
+		} catch (error) {
+			console.error('Error verificando autenticación:', error);
+			setIsAuthenticated(null);
+		}
+	};
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+	useEffect(() => {
+		checkAuth();
+	}, []);
 
-  if (isAuthenticated === null) {
-    return <Loading />;
-  }
+	if (isAuthenticated === null) {
+		return <Loading />;
+	}
 
-  if (isAuthenticated) {
-    return <Navigate to="/home" replace />;
-  }
+	if (isAuthenticated) {
+		return <Navigate to="/home" replace />;
+	}
 
-  return <Outlet />;
+	return <Outlet />;
 };
